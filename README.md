@@ -1,56 +1,60 @@
 ## My Program
 **University_Registrar_System** is a full-stack academic management system simulating a university registrar. Enabling end-to-end functionality including applicant acceptance, course registration, grade assignment, and graduation processing. A dynamic chatbot is ready for assistance to answer any university related questions users may have.
 
-## Important
-Upon running the program make sure to press the reset database button on the login page before trying to login to ensure the database is updated upon opening the program.
-
-Please note the chatbot for this project was only intended to be used to answer simple questions. i.e. "What is my gpa?" "Who is my advisor?" "What are all of the classes offered?". I will be constructing an Agent esque chatbot for my next project.. the receipt analyzer.
+## Features:
+- **AI Chatbot**: Context and role aware assistant retaining conversation history for personalized support.
+- **Secure Authentication**: Session-based login and role validation.
+- **Role-Based Workflows**: Distinct permissions and interfaces for Applicants, Students, Alumni, Faculty, Graduate Secretaries, and Administrators.
+- **Course Lifecycle Management**: Admissions → Enrollment → Grading → Graduation.
+- **Billing & Payments**: Tuition payment requirements prior to enrollment.
+- **Database Reset Tool**: Quickly initialize database state from login page.
 
 ## Technologies Used
- - Backend: Python (Flask), SQLite
- - Frontend: HTML, CSS, JavaScript
- - Database: SQL (SQLite)
- - Chatbot: Azure OpenAI integration
-
-## Features:
-- Chatbot: A dynamic assistant who answers simple questions to clarify information necessary.
-- Applicants: Apply to the university, submit personal information, receive admission decisions.
-- Course Registration: Enroll in courses after acceptance.
-- Grade System: Faculty can assign grades; students can view transcripts.
-- Billing: Tuition payment features must be fulfilled before enrollment.
-- Graduation: Students can request graduation and become alumni.
-- User Roles: Each role has unique permissions and interfaces:
-  - Applicants
-  - Students
-  - Alumni
-  - Faculty Members
-  - Graduate Secretaries
-  - System Administrators
-- Secure Login: Protected pages from invalid users accessing information.
-- Database Reset Tool: Ability to reset databse from the login page.
+ - **Backend**: Python (Flask), SQLite
+ - **Frontend**: HTML, CSS, JavaScript
+ - **Database**: SQL (SQLite)
+ - **Chatbot**: Azure OpenAI
 
 ## How to run the program
 
 1. **Simply clone the repository:**
    
-   git clone https://github.com/dandob1/University_Registrar_System.git
+   - git clone https://github.com/dandob1/Registrar_Project_with_Chatbot.git
 
-   cd into the folder
-
-2. **Compile and run the project:**
+   - cd Registrar_Project_with_Chatbot
+2. **Required installations (not necessarily exhaustive):**
+   
+    - pip install Flask openai
+3. **Compile and run the project:**
 
     Use the following command:
    
         python main.py
+4. **On first launch click RESET DATABASE on login page**
 
 ## How to use the chatbot
   - Simply sign in as any user and click the pop up button in the bottom right corner of the screen.
   - Speak to your new AI agent.
-      - If signed in as a user try asking: "Am I ready to graduate?" or "What classes are offered?" or "What classes should I take?"
+      - If signed in as a student try asking: "Am I ready to graduate?" or "What classes are offered?" or "What classes should I take?"
       - If signed in as an advisor try asking: "Who are my advisees?" " or "What classes do I teach this semester?" or "What classes should (advisee full name here) take?
       - If signed in as a admin try asking: "Are there any applicants to the university?" or "Has (applicant name here) submitted his payment?"
       - etc.
       - Help: if the bot does not answer a question on the first pass try rephrasing the question or prompting it again.
+ ## Chatbot Demo
+ 
+ For Students:
+ 
+  <img src="static/images/Paul_ready_grad.png" alt="Classes to take" width="200"/>
+ <img src="static/images/paul_classes_to_take.png" alt="Classes to take" width="200"/>
+        
+ For Faculty:
+ 
+ <img src="static/images/advisor_view.png" alt="Classes to take" width="200"/>
+ 
+ For Admins:
+ 
+  <img src="static/images/admin.png" alt="Classes to take" width="200"/>
+
 
 ## How to use the program for full application to graduation
   - Create a new user with the apply to university feature.
