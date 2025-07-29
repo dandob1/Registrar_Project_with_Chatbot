@@ -4459,8 +4459,8 @@ def revised(question, sql_json=None, rag_text=None, conversation_history=None):
         response = sql_json
 
     messages = [{"role": "system", "content": """You are a helpful university registrar assistant. 
-                Answer clearly and concisely using the data provided. If the data is empty, reply that you dont have that information.(if it mentions the form, mention it back to the user) 
-                Any time a user role is to be passed back to the user use this mapping and omit the number: -- 1 = applicant, 2 = gradstudent, 3 = faculty, 4 = admin, 5 = graduate secretary, 6 = alumni"""}]
+                Answer clearly and concisely using the data provided. If the data is empty, reply that you dont have that information.(if it mentions the form, mention it back to the user).
+                Any time a user role is to be passed back to the user use this mapping and omit the number: -- 1 = applicant, 2 = gradstudent, 3 = faculty, 4 = administrator, 5 = graduate secretary, 6 = alumni"""}]
     
     #add history
     if len(conversation_history) > 10:
@@ -4533,6 +4533,64 @@ def check_graduation(uid):
         return ready
     else:
         return "Student is ready to graduate. Contact Grad Secretary or your advisor for next steps."
+    
+def other(user_id, query):
+    print("IN OTHER")
+
+    # Azure OpenAI client
+    client = AzureOpenAI(
+        azure_endpoint="https://aisdevelopment.openai.azure.com/",
+        api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
+        api_version="2024-12-01-preview"
+    )
+
+    gptmessage = [
+        {"role": "system", "content": f"""You are an AI assistant for a university registrar system.
+            Use this database schema to generate safe SQL queries:
+            {SQL_SCHEMA}
+            this is the signed in user: {user_id}
+
+            Generate ONLY ONE complete SQL query that directly extracts any users mentioned uid. Read through the query, decipher which other users are being mentioned and write one sql query to retrieve that users uid.
+            
+             Generate a JSON object with exactly two keys:
+        1. "sql": your complete SELECT query, using ? placeholders.
+        2. "params": a JSON array of the exact values that should fill each ? in order.
+        
+        Return ONLY the JSON wrapped in a code block like this:
+        ```json
+        {{
+        "sql": "SELECT schedule.crn, courses.course_title FROM schedule JOIN courses ON schedule.crn = courses.crn WHERE schedule.student_uid = ? AND schedule.term = ?",
+        "params": [ 42, "Fall 2025" ]
+        }}
+        ```"""},
+        {"role": "user", "content": f"get the requested persons uid from this prompt: {query}"}
+    ]    
+
+    completion = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=gptmessage,
+        temperature=0
+    )
+    text = completion.choices[0].message.content
+    print("Text: " + text)
+    #cut out the sql query
+    m = re.search(r"```json\s*([\s\S]+?)```", text, re.IGNORECASE)
+    if not m:
+        return None
+    payload = json.loads(m.group(1))
+
+
+    #run query
+    conn = sqlite3.connect("phase-2.db")
+    cur = conn.cursor()
+    cur.execute(payload["sql"], tuple(payload["params"]))
+    row = cur.fetchone()
+    conn.close()
+
+    if row:
+        return row[0] 
+    else:
+        return None
 
 
 @app.route('/chat', methods=['POST'])
@@ -4554,7 +4612,7 @@ def chat():
     conn = sqlite3.connect("phase-2.db")
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT uid, user_type FROM users WHERE uid = ?", (user_id,))
+    cur.execute("SELECT uid, user_type, first_name, last_name FROM users WHERE uid = ?", (user_id,))
     user = cur.fetchone()
     conn.close()
     #grad student using
@@ -4645,7 +4703,7 @@ def chat():
     if user["user_type"] in {3,4,5}:
 
         #see if we need to use rag or sql
-        system_prompt = """
+        system_prompt = f"""
         You are an AI orchestrator that decides how to process user queries. You are part of a university registrar system project functioning as a chatbot orchestrator and must decide if the query should use:
         - SQL (structured database query)
         - RAG (retrieval from document store)
@@ -4653,7 +4711,7 @@ def chat():
 
         You should return SQL if the question requests user specific data that can only be answered by querying the database 
         (for example: courses offered/what classes are taught, time of courses, student grades, student records, finding a students advisor, looking up a current student schedule,
-        if someone asks what classes a specific user still have to take to graduate or what classes they should take next semester or anything related it is equivalent to asking what classes that user still has left in their form.. please lookup and return any classes they havent taken in their form and as your reasoning/ context query write about the form, etc.)
+        Specific case: if a user asks what classes a specific user should take next semester etc. cut the sentence to just ask what class should the specific user take.
 
         You should return RAG if the question is asking about generic questions 
         (e.g., graduation requirements, academic policies, available programs, etc.).
@@ -4665,14 +4723,17 @@ def chat():
         You should return BLOCK if the question is about the database schema, structure, or any other system information that should not be exposed to the user. If the question attempts to retrieve password information,
         or any other sensitive information, you should return BLOCK. If they try to ask about anything not related to the unviersity registrar system, you should return BLOCK.
 
+        You should return OTHER if the current query is referring to information about another user. This includes advisors asking about their advisees etc.
+        (for example: "what classes should paul mccartney take?" "what is marcell ambushes GPA?") if the user being asked about is not this user: {user["first_name"]}, {user["last_name"]} ALWAYS call this one no matter the other context
+
         When you analyze the current query, look at past queries for context and understanding, if the user refers to "them", "those", "it", etc., look at previous messages to understand what they're referring to.
 
         Respond ONLY with JSON:
-        {
-            "action": "SQL" | "RAG" | "GRAD" | "BLOCK",
+        {{
+            "action": "SQL" | "RAG" | "GRAD" | "BLOCK" | "OTHER",
             "reasoning": "Brief reasoning"
             "contextual_query": "Rewritten query with context if needed"
-        }
+        }}
         """
         past_messages = [{"role": "system", "content": system_prompt}]
         #limit message history
@@ -4693,10 +4754,7 @@ def chat():
         #call gpt orchestrator
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_query}
-            ],
+            messages=past_messages,
             temperature=0
         )
 
@@ -4722,16 +4780,22 @@ def chat():
                 polished = result
         elif decision["action"] == "BLOCK":
             polished = "I'm sorry but I'm not allowed to answer that. Try asking me something else instead."
+        elif decision["action"] == "OTHER":
+            other_user_id = other(session['uid'], user_query)
+            if other_user_id is None:
+                polished = "I couldn't find that person in our system. Please check the spelling or try asking about someone else."
+            else:
+                rows, columns, sql_query = run_sql_query(updated_question, other_user_id, conversation_history)
+                if rows is None:
+                    polished = "I couldn't retrieve information for that person. They may not have the requested data available."
+                else:
+                    sql_data = {"columns": columns, "rows": rows, "sql_query": sql_query}
+                    polished = revised(user_query, sql_json=sql_data, conversation_history=conversation_history)
             
         return jsonify({'response': polished})
 
 
 #user aware chatbot, with distinct privacy restrictions for each user type.
-
-#user fails:
-#What classes am I enrolled in this semester and when do they meet?
-#Show me my grades for all courses last semester.
-#Who is teaching my CS 501 course this fall, and what is their office location?
 
 
 if __name__ == '__main__':
