@@ -46,9 +46,9 @@ Please note the chatbot for this project was only intended to be used to answer 
 ## How to use the chatbot
   - Simply sign in as any user and click the pop up button in the bottom right corner of the screen.
   - Speak to your new AI agent.
-      - If signed in as a user try asking: "What is my gpa?" or "Who is my advisor?" or "What classes have I taken?"
-      - If signed in as an advisor try asking: "Who are my advisees?" or "What are my advisees gpa's?" or "What classes do I teach this semester?"
-      - If signed in as a admin try asking: "Who am I?" or "What is my role?" or "What do I do?"
+      - If signed in as a user try asking: "Am I ready to graduate?" or "What classes are offered?" or "What classes should I take?"
+      - If signed in as an advisor try asking: "Who are my advisees?" " or "What classes do I teach this semester?" or "What classes should (advisee full name here) take?
+      - If signed in as a admin try asking: "Are there any applicants to the university?" or "Has (applicant name here) submitted his payment?"
       - etc.
       - Help: if the bot does not answer a question on the first pass try rephrasing the question or prompting it again.
 
