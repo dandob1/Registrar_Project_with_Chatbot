@@ -4320,9 +4320,9 @@ def run_sql_query(user_query, user_id, conversation_history=None):
 
     # Azure OpenAI client
     client = AzureOpenAI(
-        azure_endpoint="https://aisdevelopment.openai.azure.com/",
-        api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
-        api_version="2024-12-01-preview"
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://pprojects.openai.azure.com/",
+        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
     )
         
     messages = [{"role": "system", "content": f"""You are an AI assistant for a university registrar system.
@@ -4397,9 +4397,9 @@ def run_rag_query(user_query, conversation_history=None):
         conversation_history = []
     # Azure OpenAI client
     client = AzureOpenAI(
-        azure_endpoint="https://aisdevelopment.openai.azure.com/",
-        api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
-        api_version="2024-12-01-preview"
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://pprojects.openai.azure.com/",
+        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
     )
 
     messages = [{"role": "system", "content": """You are an AI assistant for a university registrar system.
@@ -4448,9 +4448,9 @@ def revised(question, sql_json=None, rag_text=None, conversation_history=None):
         conversation_history = []
 
     client = AzureOpenAI(
-        azure_endpoint="https://aisdevelopment.openai.azure.com/",
-        api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
-        api_version="2024-12-01-preview"
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://pprojects.openai.azure.com/",
+        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
     )
     #use one of the 2 thats not empty
     if not sql_json:
@@ -4539,9 +4539,9 @@ def other(user_id, query):
 
     # Azure OpenAI client
     client = AzureOpenAI(
-        azure_endpoint="https://aisdevelopment.openai.azure.com/",
-        api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
-        api_version="2024-12-01-preview"
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://pprojects.openai.azure.com/",
+        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
     )
 
     gptmessage = [
@@ -4599,9 +4599,9 @@ def chat():
         return redirect('/login')
     
     client = AzureOpenAI(
-            azure_endpoint="https://aisdevelopment.openai.azure.com/",
-            api_key="DTyQG79lV7tPjYYFAB9sGzYe8MkQSrdLsosDYlUEIqAjNQ9NDtZZJQQJ99BFACYeBjFXJ3w3AAABACOGBm6d",
-            api_version="2024-12-01-preview"
+        api_version="2024-12-01-preview",
+        azure_endpoint="https://pprojects.openai.azure.com/",
+        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
     )
     #get user message
     user_query = request.json.get('message')
