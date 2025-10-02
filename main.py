@@ -4427,11 +4427,11 @@ def run_rag_query(user_query, conversation_history=None):
                 {
                     "type": "azure_search",
                     "parameters": {
-                        "endpoint": "https://registrarsearch.search.windows.net",
-                        "index_name": "rag-1752172703278",
+                        "endpoint": "https://searchunivchatbot.search.windows.net",
+                        "index_name": "rag-1759431796194",
                         "authentication": {
                             "type": "api_key",
-                            "key": "VwskNOUDEkwKfLuoHPUzZiqdYRJA3KyM7Dq51U7EFWAzSeCiE8XC",
+                            "key": "InwTgkRcqiAPc1Spnt7z5wL7buJLtAa9zxaKC9Z55mAzSeATsMqd",
                         },
                     },
                 }
