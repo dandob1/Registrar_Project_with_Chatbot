@@ -39,7 +39,7 @@
       - If signed in as an advisor try asking: "Who are my advisees?" " or "What classes do I teach this semester?" or "What classes should (advisee full name here) take?
       - If signed in as a admin try asking: "Are there any applicants to the university?" or "Has (applicant name here) submitted his payment?"
       - etc.
-      - Help: if the bot does not answer a question on the first pass try rephrasing the question or prompting it again.
+      - WARNING: Do not switch between user and admin accounts to quickly, chatbot needs a minute to process a different user role on the same device. When asking about other students in advisor role you MUST provide exact spelling of their name, including capitalization.
  ## Chatbot Demo
  
  For Students:
