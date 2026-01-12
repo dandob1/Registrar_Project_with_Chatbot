@@ -6,7 +6,16 @@ import sqlite3
 import random
 import re
 from openai import AzureOpenAI
+from dotenv import load_dotenv
 import json
+import os
+load_dotenv()
+
+openai_client = AzureOpenAI(
+    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+)
 
 
 app = Flask('app')
@@ -4317,13 +4326,6 @@ def run_sql_query(user_query, user_id, conversation_history=None):
     #database
     conn = sqlite3.connect("phase-2.db")
     cursor = conn.cursor()
-
-    # Azure OpenAI client
-    client = AzureOpenAI(
-        api_version="2024-12-01-preview",
-        azure_endpoint="https://pprojects.openai.azure.com/",
-        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
-    )
         
     messages = [{"role": "system", "content": f"""You are an AI assistant for a university registrar system.
             Use this database schema to generate safe SQL queries:
@@ -4363,7 +4365,7 @@ def run_sql_query(user_query, user_id, conversation_history=None):
 
     messages.append({"role": "user", "content": user_query})
 
-    completion = client.chat.completions.create(
+    completion = openai_client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=messages,
         temperature=0
@@ -4396,11 +4398,7 @@ def run_rag_query(user_query, conversation_history=None):
     if conversation_history is None:
         conversation_history = []
     # Azure OpenAI client
-    client = AzureOpenAI(
-        api_version="2024-12-01-preview",
-        azure_endpoint="https://pprojects.openai.azure.com/",
-        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
-    )
+    
 
     messages = [{"role": "system", "content": """You are an AI assistant for a university registrar system.
                 Use the provided RAG data source to answer general policy and program questions.
@@ -4419,7 +4417,7 @@ def run_rag_query(user_query, conversation_history=None):
     messages.append({"role": "user", "content": user_query})
 
 #rag call
-    completion = client.chat.completions.create(
+    completion = openai_client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=messages,
         extra_body={
@@ -4447,11 +4445,6 @@ def revised(question, sql_json=None, rag_text=None, conversation_history=None):
     if conversation_history is None:
         conversation_history = []
 
-    client = AzureOpenAI(
-        api_version="2024-12-01-preview",
-        azure_endpoint="https://pprojects.openai.azure.com/",
-        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
-    )
     #use one of the 2 thats not empty
     if not sql_json:
         response = rag_text
@@ -4481,7 +4474,7 @@ def revised(question, sql_json=None, rag_text=None, conversation_history=None):
         "content": f"Here is the original user's prompt: {question} This is the response that has been generated: {response}."
     })
     #run the final response
-    response = client.chat.completions.create(
+    response = openai_client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=messages,
         temperature=0.2
@@ -4537,12 +4530,7 @@ def check_graduation(uid):
 def other(user_id, query):
     print("IN OTHER")
 
-    # Azure OpenAI client
-    client = AzureOpenAI(
-        api_version="2024-12-01-preview",
-        azure_endpoint="https://pprojects.openai.azure.com/",
-        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
-    )
+   
 
     gptmessage = [
         {"role": "system", "content": f"""You are an AI assistant for a university registrar system.
@@ -4566,7 +4554,7 @@ def other(user_id, query):
         {"role": "user", "content": f"get the requested persons uid from this prompt: {query}"}
     ]    
 
-    completion = client.chat.completions.create(
+    completion = openai_client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=gptmessage,
         temperature=0
@@ -4598,11 +4586,7 @@ def chat():
     if 'uid' not in session:
         return redirect('/login')
     
-    client = AzureOpenAI(
-        api_version="2024-12-01-preview",
-        azure_endpoint="https://pprojects.openai.azure.com/",
-        api_key="60k6pEridppQUi1HWnrw031CKwrpjB4EIFm9EeFVdp1BFdZTo5v1JQQJ99BJACYeBjFXJ3w3AAABACOG0e1A",
-    )
+  
     #get user message
     user_query = request.json.get('message')
     conversation_history = request.json.get('history', [])
@@ -4666,7 +4650,7 @@ def chat():
         
 
         #call gpt orchestrator
-        response = client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -4752,7 +4736,7 @@ def chat():
         
 
         #call gpt orchestrator
-        response = client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=past_messages,
             temperature=0
